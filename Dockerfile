@@ -113,8 +113,9 @@ RUN chmod +x ./ci/scripts/build_pip_packages.sh \
 RUN source activate nv_ingest \
     && pip install ./dist/*.whl
 
-RUN source activate nv_ingest \
-    && rm -rf src requirements.txt test-requirements.txt util-requirements.txt
+# BREV - commenting this out because the docker-compose itself is broken due to how we are mounting volumes
+#RUN source activate nv_ingest \
+#    && rm -rf src requirements.txt test-requirements.txt util-requirements.txt
 
 # Upgrade setuptools to mitigate https://github.com/advisories/GHSA-cx63-2mw6-8hw5
 RUN source activate base \
@@ -142,6 +143,9 @@ COPY src/pipeline.py ./
 COPY pyproject.toml ./
 
 RUN chmod +x /workspace/docker/entrypoint.sh
+
+# BREV - not sure why uvicorn was not in the original tagged and released container. Installing here 
+RUN conda install conda-forge::uvicorn
 
 # Set entrypoint to tini with a custom entrypoint script
 ENTRYPOINT ["/opt/conda/envs/nv_ingest/bin/tini", "--", "/workspace/docker/entrypoint.sh"]
